@@ -1,36 +1,35 @@
 package com.example.clinica.model;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "turno")
 public class Turno {
 
     @Id
+    @Column
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     @OneToOne
     @JoinColumn(name = "matricula")
     private Odontologo odontologo;
+
     @OneToOne
     @JoinColumn(name = "dni")
     private Paciente paciente;
 
-    @Column(name = "fecha")
-    private String fecha;
+    @Column
+    private LocalDateTime fechaTurno;
 
     public Turno() {
     }
 
-    public Turno(Odontologo odontologo, Paciente paciente, String fecha) {
+    public Turno(Odontologo odontologo, Paciente paciente, LocalDateTime fechaTurno) {
         this.odontologo = odontologo;
         this.paciente = paciente;
-        this.fecha = fecha;
-    }
-
-    public Integer getId() {
-        return id;
+        this.fechaTurno = fechaTurno;
     }
 
     public Odontologo getOdontologo() {
@@ -41,7 +40,16 @@ public class Turno {
         return paciente;
     }
 
-    public String getFecha() {
-        return fecha;
+    public LocalDateTime getFfechaTurno() {
+        return fechaTurno;
+    }
+
+    @Override
+    public String toString() {
+        return "Turno{" +
+                "odontologo=" + odontologo +
+                ", paciente=" + paciente +
+                ", fechaHora=" + fechaTurno +
+                '}';
     }
 }
