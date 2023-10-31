@@ -164,4 +164,77 @@ public class TurnoServiceTest {
         verify(turnoRepository, times(1)).save(any());
     }
 
+    @Test
+    public void validarTurnoExistentePorDniCunadoDniEsNegativo() {
+        //Arrange
+        Integer dni = -12;
+        String fecha = "2012-10-23 13:10";
+        //act //Assert
+        assertThrows(RuntimeException.class, () -> this.turnoService.validarTurnoExistentePorDni(dni, fecha)) ;
+    }
+
+    @Test
+    public void validarTurnoExistentePorDniCunadoDniEsNuloFechaNula() {
+        //Arrange
+        Integer dni = null;
+        String fecha = null;
+        //act //Assert
+        assertThrows(RuntimeException.class, () -> this.turnoService.validarTurnoExistentePorDni(dni, fecha)) ;
+    }
+
+    @Test
+    public void validarTurnoExistentePacienteNoExiste(){
+        //Arrange
+        Integer dni = 123;
+        String fecha = "2012-10-23 13:10";
+        when(pacienteRepository.findById(any())).thenReturn(Optional.empty());
+        //Act
+        boolean tieneTurnoParaLaFecha = turnoService.validarTurnoExistentePorDni(dni, fecha);
+        //Assert
+        assertTrue(tieneTurnoParaLaFecha == false);
+    }
+
+    @Test
+    public void validarTurnoExisteParaFechaPaciente() {
+        //Arrange
+        Integer dni = 123;
+        String fecha = "2012-10-23 13:10";
+        Paciente paciente = new Paciente("Catalina", "Perez", 123, "asjkhdga hjas");
+        when(pacienteRepository.findById(any())).thenReturn(Optional.of(paciente));
+        when(turnoRepository.existsByPacienteAndFechaTurno(any(), any())).thenReturn(true);
+        // act
+        boolean tieneTurnoParaLaFecha = turnoService.validarTurnoExistentePorDni(dni, fecha);
+        //assert
+        assertTrue(tieneTurnoParaLaFecha == true);
+    }
+
+    @Test
+    public void validarTurnoNoExisteParaFechaPaciente() {
+        //Arrange
+        Integer dni = 123;
+        String fecha = "2012-10-23 13:10";
+        Paciente paciente = new Paciente("Catalina", "Perez", 123, "asjkhdga hjas");
+        when(pacienteRepository.findById(any())).thenReturn(Optional.of(paciente));
+        when(turnoRepository.existsByPacienteAndFechaTurno(any(), any())).thenReturn(false);
+        // act
+        boolean tieneTurnoParaLaFecha = turnoService.validarTurnoExistentePorDni(dni, fecha);
+        //assert
+        assertTrue(tieneTurnoParaLaFecha == false);
+        verify(turnoRepository, times(1)).existsByPacienteAndFechaTurno(any(), any());
+    }
+
+
+    @Test
+    public void validarTurnoConExpecionBaseDatos() {
+        //Arrange
+        Integer dni = 123;
+        String fecha = "2012-10-23 13:10";
+        Paciente paciente = new Paciente("Catalina", "Perez", 123, "asjkhdga hjas");
+        when(pacienteRepository.findById(any())).thenThrow(new IllegalArgumentException());
+        // act
+        assertThrows(IllegalArgumentException.class, () -> turnoService.validarTurnoExistentePorDni(dni, fecha));
+    }
+
+
+
 }
