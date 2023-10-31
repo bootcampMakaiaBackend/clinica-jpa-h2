@@ -52,4 +52,37 @@ public class TurnoService {
         return numero1 + numero2;
     }
 
+    public boolean validarTurnoExistentePorDni(Integer dni, String fechaTurno) {
+        if (dni == null || dni <= 0 || fechaTurno == null) {
+            throw new RuntimeException("Los parámetros para validar un turno existente no son válidos");
+        }
+
+        Optional<Paciente> paciente = pacienteRepository.findById(dni);
+        if (paciente.isPresent()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            LocalDateTime localDateTime = LocalDateTime.parse(fechaTurno, formatter);
+            return turnoRepository.existsByPacienteAndFechaTurno(paciente.get(), localDateTime);
+        }
+
+        return false;
+    }
+
+    public void eliminarTurnoPorDni(Integer dni, LocalDateTime fechaTurno) {
+        if (dni == null || dni <= 0 || fechaTurno == null) {
+            throw new RuntimeException("Los parámetros para eliminar un turno no son válidos");
+        }
+
+        Optional<Paciente> paciente = pacienteRepository.findById(dni);
+        if (paciente.isPresent()) {
+            Optional<Turno> turno = turnoRepository.findByPacienteAndFechaTurno(paciente.get(), fechaTurno);
+            if (turno.isPresent()) {
+                turnoRepository.delete(turno.get());
+            } else {
+                throw new RuntimeException("No se encontró el turno a eliminar");
+            }
+        } else {
+            throw new RuntimeException("No se encontró el paciente con DNI proporcionado");
+        }
+    }
+
 }
